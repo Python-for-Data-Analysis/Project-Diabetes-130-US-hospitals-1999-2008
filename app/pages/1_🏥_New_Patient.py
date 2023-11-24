@@ -11,6 +11,7 @@ st.write(
 )
 
 
+
 admission_type_descriptions = {
     "Emergency": 1,
     "Urgent": 2,
