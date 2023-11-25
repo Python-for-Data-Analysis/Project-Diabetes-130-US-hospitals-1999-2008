@@ -1,6 +1,9 @@
 import streamlit as st
 import time
 import numpy as np
+import pandas as pd
+import New_patient_encoding
+from New_patient_encoding import *
 
 st.set_page_config(page_title="New Patient", page_icon="🏥")
 
@@ -105,6 +108,11 @@ with st.form("patient_data_form", clear_on_submit=True):
     race = st.selectbox("Race", ["Caucasian", "Asian", "African American", "Hispanic", "Other"])
     gender = st.selectbox("Gender", ["Male", "Female", "Unknown/Invalid"])
     age = st.selectbox("Age", [f"[{i}, {i+10})" for i in range(0, 100, 10)])
+    payer_code = st.selectbox("Payer Code", ['Government Programs', 'Managed Care and Networks',
+       'Private Insurance', 'Self-Pay and Other Plans',
+       'Specialized Programs','Other'])
+    medical_specialty = st.selectbox("Medical Specialty", ['General Practice and Internal Medicine','Surgery and Surgical Specialties','Pediatrics and Pediatric Subspecialties','Womens Health and Obstetrics/Gynecology',
+                                                          'Specialized Organ and System Experts', 'Diagnostic and Therapeutic Services', 'Emergency Medicine and Critical Care','Other Specialties and Miscellaneous'])
 
     # Selectbox for admission type, discharge disposition, and admission source
     admission_type = st.selectbox("Admission Type", list(admission_type_descriptions.keys()))
@@ -113,8 +121,6 @@ with st.form("patient_data_form", clear_on_submit=True):
 
     # More numeric inputs
     time_in_hospital = st.number_input("Time in Hospital (days)", min_value=0)
-    payer_code = st.number_input("Payer Code", min_value=1, max_value=23)
-    medical_specialty = st.number_input("Medical Specialty", min_value=1, max_value=84)
     num_lab_procedures = st.number_input("Number of Lab Procedures", min_value=0)
     num_procedures = st.number_input("Number of Procedures", min_value=0)
     num_medications = st.number_input("Number of Medications", min_value=0)
@@ -204,16 +210,76 @@ with st.form("patient_data_form", clear_on_submit=True):
     # Form submission button
     submitted = st.form_submit_button("Submit")
 
+    metformin=medication_data["Metformin"]
+    repaglinide=medication_data["Repaglinide"],
+    nateglinide=medication_data["Nateglinide"],
+    chlorpropamide=medication_data["Chlorpropamide"],
+    glimepiride=medication_data["Glimepiride"],
+    acetohexamide=medication_data["Acetohexamide"],
+    glipizide=medication_data["Glipizide"],
+    glyburide=medication_data["Glyburide"],
+    tolbutamide=medication_data["Tolbutamide"],
+    pioglitazone=medication_data["Pioglitazone"],
+    rosiglitazone=medication_data["Rosiglitazone"],
+    acarbose=medication_data["Acarbose"],
+    miglitol=medication_data["Miglitol"],
+    troglitazone=medication_data["Troglitazone"],
+    tolazamide=medication_data["Tolazamide"],
+    examide=medication_data["Examide"],
+    citoglipton=medication_data["Citoglipton"],
+    insulin=medication_data["Insulin"],
+    glyburide_metformin=medication_data["Glyburide-Metformin"],
+    glipizide_metformin=medication_data["Glipizide-Metformin"],
+    glimepiride_pioglitazone=medication_data["Glimepiride-Pioglitazone"],
+    metformin_rosiglitazone=medication_data["Metformin-Rosiglitazone"],
+    metformin_pioglitazone=medication_data["Metformin-Pioglitazone"],
+
+
+    data_retrieved=[encounter_id,patient_nbr,weight,race,gender,age,admission_type,discharge_disposition,admission_source,time_in_hospital,payer_code,medical_specialty,num_lab_procedures,num_procedures,num_medications,
+    number_outpatient,number_emergency,number_inpatient,diag_1,diag_2,diag_3,number_diagnoses,metformin,repaglinide,nateglinide,chlorpropamide,glimepiride,acetohexamide,glipizide,glyburide,tolbutamide,pioglitazone,
+    rosiglitazone,acarbose,miglitol,troglitazone,tolazamide,examide,citoglipton,insulin,glyburide_metformin,glipizide_metformin,glimepiride_pioglitazone,metformin_rosiglitazone,metformin_pioglitazone,change,diabetesMed]
+
+
+    columns_name=['encounter_id', 'patient_nbr', 'weight','race', 'gender', 'age', 
+       'admission_type_id', 'discharge_disposition_id', 'admission_source_id',
+       'time_in_hospital', 'payer_code', 'medical_specialty',
+       'num_lab_procedures', 'num_procedures', 'num_medications',
+       'number_outpatient', 'number_emergency', 'number_inpatient', 'diag_1',
+       'diag_2', 'diag_3', 'number_diagnoses',
+       'metformin', 'repaglinide', 'nateglinide', 'chlorpropamide',
+       'glimepiride', 'acetohexamide', 'glipizide', 'glyburide', 'tolbutamide',
+       'pioglitazone', 'rosiglitazone', 'acarbose', 'miglitol', 'troglitazone',
+       'tolazamide', 'examide', 'citoglipton', 'insulin',
+       'glyburide-metformin', 'glipizide-metformin',
+       'glimepiride-pioglitazone', 'metformin-rosiglitazone',
+       'metformin-pioglitazone', 'change', 'diabetesMed']
+    
+
+    
+
+
     if submitted:
         # Convert descriptions to IDs
         admission_type_id = admission_type_descriptions[admission_type]
         discharge_disposition_id = discharge_disposition_descriptions[discharge_disposition]
         admission_source_id = admission_source_descriptions[admission_source]
 
+        # Add the data in a dataframe
+        dict={}
+        for i in range(len(columns_name)):
+            dict[columns_name[i]]=data_retrieved[i]
+        
+        
+        new_data=pd.DataFrame(dict)
+
+        final_data=encode_data(new_data)
         # Process and display the form data (or handle it as required)
         st.write("Form submitted!")
         st.write("Admission Type ID:", admission_type_id)
         # Display other processed data as required
 
 
+
 st.button("Re-run")
+
+
