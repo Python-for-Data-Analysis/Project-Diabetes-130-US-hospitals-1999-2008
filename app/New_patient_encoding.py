@@ -118,12 +118,12 @@ def encode_data(dataFrame):
     data = pd.get_dummies(data, columns=["diag_1", "diag_2", "diag_3"], prefix=["diag_1", "diag_2", "diag_3"])
     data = pd.get_dummies(data, columns=["payer_code"], prefix=["payer_code"])
     data = pd.get_dummies(data, columns=["medical_specialty"], prefix=["medical_specialty"])
-    data = pd.get_dummies(data, columns=["admission_type_id"], prefix=["admission_type_id"])
 
     data["discharge_disposition_id"] = data["discharge_disposition_id"].apply(lambda x:discharge_disposition_descriptions[x])
     data["admission_source_id"] = data["admission_source_id"].apply(lambda x:admission_source_descriptions[x])
-    data["admission_type"]= data["discharge_disposition_id"].apply(lambda x:admission_type_descriptions[x])
-
+    data["admission_type_id"]= data["admission_type_id"].apply(lambda x:admission_type_descriptions[x])
+    data = pd.get_dummies(data, columns=["admission_type_id"], prefix=["admission_type_id"])
+    
     data["discharge_disposition_id"] = data["discharge_disposition_id"].apply(lambda x:discharged_dict[x])
     data["admission_source_id"] = data["admission_source_id"].apply(lambda x:admission_source_dict[x])
 
@@ -165,4 +165,5 @@ def map_icd9_to_category(code):
         return 'General Symptoms, Injuries, and Other Conditions'
     else:
         return 'Uncategorized'
-    
+
+test_df=pd.read_csv('test.csv')
