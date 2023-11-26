@@ -1,5 +1,7 @@
 import pandas as pd
 
+encoded_dataframe=pd.read_csv('dataframe_encoded.csv')
+
 
 admission_type_descriptions = {
     "Emergency": 1,
@@ -127,6 +129,13 @@ def encode_data(dataFrame):
     data["discharge_disposition_id"] = data["discharge_disposition_id"].apply(lambda x:discharged_dict[x])
     data["admission_source_id"] = data["admission_source_id"].apply(lambda x:admission_source_dict[x])
 
+    
+    for col in encoded_dataframe.columns:
+        if col not in data.columns: 
+            data[col]=0
+            
+    data.drop(labels=["weight", "encounter_id", "patient_nbr","Unnamed:0.1"], axis=1, inplace=True)
+
     return data
 
 def map_icd9_to_category(code):
@@ -166,4 +175,4 @@ def map_icd9_to_category(code):
     else:
         return 'Uncategorized'
 
-test_df=pd.read_csv('test.csv')
+final_test=pd.read_csv('test.csv')

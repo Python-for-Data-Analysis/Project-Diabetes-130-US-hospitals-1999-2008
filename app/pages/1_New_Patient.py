@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 
 
+encoded_dataframe=pd.read_csv('dataframe_encoded.csv')
+
 st.set_page_config(page_title="New Patient", page_icon="🏥")
 
 st.markdown("# New Patient")
@@ -131,6 +133,7 @@ def encode_data(dataFrame):
     data = pd.get_dummies(data, columns=["diag_1", "diag_2", "diag_3"], prefix=["diag_1", "diag_2", "diag_3"])
     data = pd.get_dummies(data, columns=["payer_code"], prefix=["payer_code"])
     data = pd.get_dummies(data, columns=["medical_specialty"], prefix=["medical_specialty"])
+    data = pd.get_dummies(data, columns=["race"], prefix=["race"])
 
     data["discharge_disposition_id"] = data["discharge_disposition_id"].apply(lambda x:discharge_disposition_descriptions[x])
     data["admission_source_id"] = data["admission_source_id"].apply(lambda x:admission_source_descriptions[x])
@@ -139,6 +142,15 @@ def encode_data(dataFrame):
     
     data["discharge_disposition_id"] = data["discharge_disposition_id"].apply(lambda x:discharged_dict[x])
     data["admission_source_id"] = data["admission_source_id"].apply(lambda x:admission_source_dict[x])
+
+    for col in encoded_dataframe.columns:
+        if col not in data.columns: 
+            if encoded_dataframe[col].dtype==bool:
+                data[col]=False
+            else:
+                data[col]=0
+    
+    data.drop(labels=["weight", "encounter_id", "patient_nbr"], axis=1, inplace=True)
 
     return data
 
@@ -373,6 +385,3 @@ with st.form("patient_data_form", clear_on_submit=True):
 
 
 st.button("Re-run")
-
-
-import pandas as pd
