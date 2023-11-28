@@ -1,7 +1,7 @@
 import streamlit as st
 import time
-import numpy as np
 import pandas as pd
+import random
 
 st.set_page_config(page_title="New Patient", page_icon="🏥")
 
@@ -119,14 +119,23 @@ def calculate_form_completion(**form_fields):
     return filled_fields / total_fields
 
 
+# Créer un nombre aléatoire entre 10000 et 100000 pour l'id du patient
+def random_numer():
+    random_number = random.randint(10000, 100000)
+    return random_number
+
+
+encouter_id_val = random_numer()
+patient_number_val = random_numer()
+
 # Start a form
 with st.form("patient_data_form", clear_on_submit=True):
     st.write("Patient Encounter Form")
 
-    # Text input for IDs and strings
-    encounter_id = st.text_input("Encounter ID")
-    patient_nbr = st.text_input("Patient Number")
-    weight = st.text_input("Weight in pounds")
+    # Text input for IDs
+    encounter_id = st.number_input('Encouter ID (auto)', value=encouter_id_val)
+    patient_nbr = st.number_input('Patient Number (auto)', value=patient_number_val)
+    # weight = st.text_input("Weight in pounds")
 
     # Selectboxes for categorical data
     race = st.selectbox("Race", ["Caucasian", "Asian", "African American", "Hispanic", "Other"])
@@ -181,7 +190,7 @@ with st.form("patient_data_form", clear_on_submit=True):
         race=race,
         gender=gender,
         age=age,
-        weight=weight,
+        # weight=weight,
         admission_type=admission_type,
         discharge_disposition=discharge_disposition,
         admission_source=admission_source,
@@ -233,7 +242,8 @@ with st.form("patient_data_form", clear_on_submit=True):
     submitted = st.form_submit_button("Submit")
 
     if submitted:
-        if not encounter_id or not patient_nbr or not weight or not diag_1 or not diag_2 or not diag_3:
+        # if not encounter_id or not patient_nbr or not weight or not diag_1 or not diag_2 or not diag_3:
+        if not diag_1 or not diag_2 or not diag_3:
             st.error("Veuillez remplir tous les champs avant de soumettre.")
 
         else:
@@ -243,7 +253,7 @@ with st.form("patient_data_form", clear_on_submit=True):
             patient_data = {
                 "encounter_id": encounter_id,
                 "patient_nbr": patient_nbr,
-                "weight": weight,
+                # "weight": weight,
                 "race": race,
                 "gender": gender,
                 "age": age,
@@ -309,7 +319,7 @@ with st.form("patient_data_form", clear_on_submit=True):
 
             def preprocess(data):
                 data.replace('?', None, inplace=True)
-                data.drop(labels=["weight", "encounter_id", "patient_nbr"], axis=1, inplace=True)
+                # data.drop(labels=["weight", "encounter_id", "patient_nbr"], axis=1, inplace=True)
                 colonnes_categ = ['A1Cresult', 'max_glu_serum']
                 data = pd.get_dummies(data, columns=colonnes_categ)
                 age_dict = {
@@ -569,20 +579,40 @@ with st.form("patient_data_form", clear_on_submit=True):
                 return data
 
 
-            # Appliquer la fonction de prétraitement
-            processed_df = preprocess(patient_df)
-
-            # Appliquer le modèle de prédiction
             from joblib import load
 
-            model = load('models/rf_model.pkl')
+            with st.spinner('Predicting readmission risk...'):  # ajoute spinning pendant chargement
+                progress_bar = st.progress(0)
 
-            prediction = model.predict(processed_df)
+                for i in range(100):
+                    time.sleep(0.02)  # Simulating processing time
+                    progress_bar.progress(i + 1)
 
-            # Afficher le résultat de la prédiction
+                processed_df = preprocess(patient_df)
+                model = load('models/rf_model.pkl')
+                prediction = model.predict(processed_df)
+                probabilities = model.predict_proba(processed_df)
+
+            progress_bar.empty()
+
+            # st.text(probabilities)
+            # st.text(prediction)
+
+            # Display prediction results
             if prediction == 0:
                 st.success('Patient will not be readmitted within the next 30 days!')
             else:
                 st.error('Patient will be readmitted within the next 30 days!')
+
+            # encoded_dataframe=pd.read_csv('app/data_encoded.csv')
+            # concatenated_dataframe = pd.concat([processed_df,encoded_dataframe], ignore_index=True)
+            import shap
+            import matplotlib.pyplot as plt
+
+            explainer = shap.Explainer(model)
+            shap_values = explainer(processed_df)
+            st.subheader("SHAP Values for New Patient")
+            shap.waterfall_plot(shap_values[0, :, 1], max_display=10)
+            st.pyplot(plt)
 
 st.button("Re-run")
