@@ -6,7 +6,7 @@ import seaborn as sns
 
 st.set_page_config(page_title="List Patients", page_icon="🏥")
 
-st.markdown("# List Patients")
+st.markdown("# Patients List")
 st.sidebar.header("List Patients")
 
 
@@ -31,8 +31,6 @@ def color_row(row):
 
 
 def display_table(df):
-    st.write("Patients Table")
-
     # Pagination settings
     rows_per_page = 25
     n_pages = len(df) // rows_per_page + (1 if len(df) % rows_per_page else 0)
@@ -55,7 +53,7 @@ def display_figures(df):
     sns.set_style("darkgrid")
 
     # Example variables: 'age', 'time_in_hospital', 'num_medications'
-    variables = ['age', 'time_in_hospital', 'num_medications']
+    variables = ['age', 'num_medications']
 
     for variable in variables:
         fig, ax = plt.subplots(figsize=(10, 6))  # Larger figure size
@@ -76,9 +74,49 @@ def display_figures(df):
         st.pyplot(fig)
 
 
+def display_figures_2(data):
+
+    # Setting the aesthetic style of the plots
+    sns.set(style="darkgrid")
+
+    # Time in hospital
+    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Time in Hospital</h3>",
+                unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(data['time_in_hospital'], kde=True, ax=ax)
+    st.pyplot(fig)
+
+    # Gender distribution
+    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of gender</h3>",
+                unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.countplot(data['gender'], ax=ax)
+    st.pyplot(fig)
+
+    # Race distribution
+    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of 'Race'</h3>",
+                unsafe_allow_html=True)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.countplot(data['race'], ax=ax)
+    ax.tick_params(axis='x', rotation=45)
+    st.pyplot(fig)
+
+
+    # Missing data visualization
+    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Missing Values</h3>",
+                unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    missing = data.replace('?', pd.NA).isna().mean().sort_values(ascending=False)
+    missing = missing[missing > 0]
+    sns.barplot(x=missing, y=missing.index, ax=ax)
+    st.pyplot(fig)
+
+
+
 df = load_data()
 display_table(df)
 display_figures(df)
 st.markdown("<p style='text-align: center; color: lightblue;'>As a reminder, num_medication is the number of distinct "
             "generic drugs administered during the encounter.</p>", unsafe_allow_html=True)
-
+display_figures_2(df)
