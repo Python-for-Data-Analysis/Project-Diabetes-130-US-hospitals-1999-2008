@@ -21,8 +21,8 @@ def load_data():
 # Function to display the table with color coding
 def color_row(row):
     # Define colors with transparency using rgba
-    red_color = 'rgba(255, 0, 0, 0.5)'  # 50% transparency
-    green_color = 'rgba(0, 255, 0, 0.5)'  # 50% transparency
+    red_color = 'rgba(217,83,79, 0.5)'  # 50% transparency
+    green_color = 'rgba(92,184,92, 0.5)'  # 50% transparency
 
     if row['readmit_color'] == 'red':
         return [f'background-color: {red_color}'] * len(row)
@@ -51,26 +51,28 @@ def display_figures(data):
 
     # Set the Seaborn style
     sns.set_style("darkgrid")
+    palette = {"<30": '#d9534f', '>=30': '#5cb85c'}
 
     # Afficher les figures dans des colonnes
     col1, col2 = st.columns(2)
 
     with col1:
         # Age distribution
-        st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Age</h3>",
-                    unsafe_allow_html=True)
+        data['readmitted_category'] = data['readmitted'].apply(lambda x: '<30' if x == '<30' else '>=30')
+
         fig, ax = plt.subplots(figsize=(10, 6))
-        sns.histplot(data['age'], ax=ax)
+        sns.histplot(data, x='age', hue='readmitted_category', multiple="dodge", ax=ax, palette=palette)
         plt.tight_layout()
+        st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Age by Readmission Status</h3>",
+                    unsafe_allow_html=True)
         st.pyplot(fig)
 
     with col2:
         # Gender distribution
-        gender_colors = {"Female": "pink", "Male": "#335e8a", "Unknown/Invalid": "grey"}
         st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of gender</h3>",
                     unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(10, 6))
-        sns.countplot(data['gender'], ax=ax, palette=gender_colors)
+        sns.countplot(data, x='gender', hue='readmitted_category', ax=ax, palette=palette)
         plt.tight_layout()
         st.pyplot(fig)
 
@@ -78,11 +80,47 @@ def display_figures(data):
         # Race distribution
         st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of 'Race'</h3>",
                     unsafe_allow_html=True)
-
         fig, ax = plt.subplots(figsize=(10, 6))
-        sns.countplot(data['race'], ax=ax, palette='muted')
+        sns.countplot(data, y='race', hue='readmitted_category', ax=ax, palette=palette)
         plt.tight_layout()
-        ax.tick_params(axis='x', rotation=45)
+        ax.tick_params(axis='x', rotation=0)
+        st.pyplot(fig)
+
+    with col2:
+        admission_source_descriptions = {
+            1: "Physician Referral",
+            2: "Clinic Referral",
+            3: "HMO Referral",
+            4: "Transfer from a hospital",
+            5: "Transfer from a Skilled Nursing Facility (SNF)",
+            6: "Transfer from another health care facility",
+            7: "Emergency Room",
+            8: "Court/Law Enforcement",
+            10: "Transfer from critial access hospital",
+            11: "Normal Delivery",
+            12: "Premature Delivery",
+            13: "Sick Baby",
+            14: "Extramural Birth",
+            15: "Not Available",
+            17: "NULL",
+            18: "Transfer From Another Home Health Agency",
+            19: "Readmission to Same Home Health Agency",
+            20: "Not Mapped",
+            21: "Unknown/Invalid",
+            22: "Transfer from hospital inpt/same fac reslt in a sep claim",
+            23: "Born inside this hospital",
+            24: "Born outside this hospital",
+            25: "Transfer from Ambulatory Surgery Center",
+            26: "Transfer from Hospice"
+        }
+        data['admission_source_description'] = data['admission_source_id'].map(admission_source_descriptions)
+        # Admission source id distribution
+        st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Admission Source</h3>",
+                    unsafe_allow_html=True)
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.countplot(data, y='admission_source_description', hue='readmitted_category', ax=ax, palette=palette)
+        plt.tight_layout()
+        ax.tick_params(axis='x', rotation=0)
         st.pyplot(fig)
 
 def display_figures_2(data):
@@ -168,13 +206,13 @@ def display_figures_2(data):
 def correlation_heatmap(data):
     # Correlation analysis among numerical features and with the target variable
     numerical_features = data.select_dtypes(include=['int64', 'float64'])
-    correlation_matrix = numerical_features.corr()
+    correlation_matrix = numerical_features.corr(method='spearman')
 
     # Plotting the correlation matrix
-    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Correlation Matrix for Numeric Values</h3>",
+    st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Spearman Correlation Matrix for Numeric Values</h3>",
                 unsafe_allow_html=True)
     fig, ax = plt.subplots(figsize=(12, 8))
-    sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='coolwarm')
+    sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap='Blues')
     st.pyplot(fig)
 
 
@@ -184,13 +222,13 @@ display_table(df)
 # Menu déroulant pour la sélection du graphique
 option = st.selectbox(
     "Choisissez les graphiques à afficher:",
-    ('Sélectionnez', 'Age/Number of medications', 'Ohter distributions', 'Correlations')
+    ('Sélectionnez', 'Patient characteristics', 'Medical Statistics', 'Correlations')
 )
 
 # Afficher le graphique en fonction de la sélection
-if option == 'Age/Number of medications':
+if option == 'Patient characteristics':
     display_figures(df)
-elif option == 'Ohter distributions':
+elif option == 'Medical Statistics':
     display_figures_2(df)
 elif option == 'Correlations':
     correlation_heatmap(df)
