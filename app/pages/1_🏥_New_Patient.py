@@ -6,9 +6,9 @@ import random
 st.set_page_config(page_title="New Patient", page_icon="🏥")
 
 st.markdown("# New Patient")
-st.sidebar.header("New Patient")
+#st.sidebar.header("New Patient")
 st.write(
-    """Is he gonna come back ?"""
+    """Fill these information if you want to know not only if the patient is likely to be readmitted within the next month but also how likely it is and more importantly **why**:"""
 )
 
 admission_type_descriptions = {

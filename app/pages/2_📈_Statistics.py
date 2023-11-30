@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.set_page_config(page_title="List Patients", page_icon="🏥", layout="wide")
+st.set_page_config(page_title="Statistics", page_icon="🏥", layout="wide")
 
-st.markdown("# Patients List")
-st.sidebar.header("List Patients")
+st.markdown("# Statistics")
+#st.sidebar.header("List Patients")
 
 
 # Function to load and preprocess data
@@ -337,8 +337,8 @@ display_table(df)
 
 # Menu déroulant pour la sélection du graphique
 option = st.selectbox(
-    "Choisissez les graphiques à afficher:",
-    ('Sélectionnez', 'Patient characteristics', 'Medical Statistics', 'Correlations')
+    "Choose the graphics to display:",
+    ('Select', 'Patient characteristics', 'Medical Statistics', 'Correlations')
 )
 
 # Afficher le graphique en fonction de la sélection
@@ -350,5 +350,5 @@ elif option == 'Correlations':
     significance(df)
     correlation_heatmap(df)
 else:
-    st.write("Sélectionnez un graphique à afficher.")
+    st.write("Select a graphic")
 
