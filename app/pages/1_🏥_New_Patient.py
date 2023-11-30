@@ -577,7 +577,8 @@ with st.form("patient_data_form", clear_on_submit=True):
                 data = data[colonnes_to_keep]                
 
                 scaler = load('models/scaler.pkl')
-                data = scaler.transform(data)
+                data_scaled = scaler.transform(data)
+                data = pd.DataFrame(data_scaled, index=data.index, columns=data.columns)
                 return data
             
 
