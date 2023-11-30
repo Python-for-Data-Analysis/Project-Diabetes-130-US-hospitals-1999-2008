@@ -32,8 +32,10 @@ streamlit run .\app\Home.py
 
 ## Fonctionnalités
 
-[...]
+🆕 Evaluate the readmission risk for a new patient based on clinical data
 
-## Contact
+📈 View statistical insights from our training dataset to understand broader trends
 
-[...]
+📑 See more details about how we built this model
+
+👥 Meet and discover the team that worked on this project
