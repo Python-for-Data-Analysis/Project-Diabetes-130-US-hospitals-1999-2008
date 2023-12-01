@@ -140,7 +140,7 @@ def display_figures_2(data):
 
     with col2:
         # Num medication distribution
-        st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Num Medications</h3>",
+        st.markdown(f"<h3 style='text-align: center; color: lightblue;'>Distribution of Lab Procedures</h3>",
                     unsafe_allow_html=True)
         fig = plt.figure(figsize = (10, 6))
         a = sns.kdeplot(data.loc[(data['readmitted_category'] == '>=30'), "num_lab_procedures"] ,
@@ -320,8 +320,9 @@ def significance(data):
     st.pyplot(fig)
 
 def correlation_heatmap(data):
+    data['readmitted_category'] = data['readmitted'].apply(lambda x: 1 if x == '<30' else 0)
     # Correlation analysis among numerical features and with the target variable
-    numerical_features = data.select_dtypes(include=['int64', 'float64'])
+    numerical_features = data.select_dtypes(include=['int64', 'float64'])    
     correlation_matrix = numerical_features.corr(method='spearman')
 
     # Plotting the correlation matrix
