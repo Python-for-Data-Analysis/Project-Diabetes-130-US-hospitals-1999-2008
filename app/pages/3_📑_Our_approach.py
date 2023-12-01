@@ -38,7 +38,7 @@ def get_base64_of_pdf(pdf_file):
 
 def displayPDF2():
     # Ajout d'un lien vers un PDF
-    pdf_file = "app/asset/Python_DIA1_ESTIGNARD_COCKENPOT_MELL MARIOLLE.pdf"    
+    pdf_file = "app/asset/Python_DIA1_ESTIGNARD_COCKENPOT_MELL_MARIOLLE.pdf"    
     pdf_base64 = get_base64_of_pdf(pdf_file)
 
     # Intégrer le PDF dans la page
